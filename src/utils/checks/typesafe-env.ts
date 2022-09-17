@@ -13,13 +13,17 @@ import {
 	VariableDeclaration,
 } from '@babel/types';
 import { error } from '../log.js';
-import { enviromentVariables } from '../env';
+import { enviromentVariables } from '../env.js';
 import ora from 'ora';
 
 const getAST = async () => {
 	// We are expecting for the project structure to be like this:
 	// src
 	// └── env
+	//      ├─── *.mjs
+	//      ├── schema.mjs
+	//      └── *.mjs
+
 	const folder = await findNpmRoot(process.cwd());
 	const envFolder = path.join(folder, 'src', 'env');
 
