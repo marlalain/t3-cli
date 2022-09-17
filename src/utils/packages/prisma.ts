@@ -2,7 +2,8 @@ import { getPackageVersion, isPackageInstalled, Package } from './index.js';
 import { findPackageJson } from '../npm.js';
 
 export class Prisma implements Package {
-	name = '@prisma/client';
+	name = 'Prisma';
+	value = '@prisma/client';
 	devDependency = false;
 
 	version = async (): Promise<string | undefined> => {

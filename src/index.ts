@@ -1,20 +1,31 @@
-import { packages } from './utils/packages/index.js';
+import { Package, packages } from './utils/packages/index.js';
 import ora from 'ora';
+import chalk from 'chalk';
+
+const getNotInstalledPackages = async () => {
+	const notInstalledPackages: Package[] = [];
+
+	const promises = Object.entries(packages).map(([, pkg]): Package => {
+		return pkg;
+	});
+
+	for (const pkg of await Promise.all(promises)) {
+		const s = ora(`Checking ${pkg.name}`).start();
+		if (await pkg.isInstalled()) {
+			s.succeed(chalk.green(`${pkg.name} is installed`));
+		} else {
+			s.fail(chalk.red(`${pkg.name} is not installed`));
+			notInstalledPackages.push(pkg);
+		}
+	}
+
+	return notInstalledPackages;
+};
 
 (async () => {
 	const spinner = ora('Checking packages').start();
+	const notInstalledPackages = await getNotInstalledPackages();
+	spinner.succeed('Done');
 
-	const promises = Object.entries(packages).map(async ([, pkg]) => {
-		const installed = await pkg.isInstalled();
-		const version = await pkg.version();
-		return {
-			name: pkg.name,
-			version,
-			installed,
-		};
-	});
-
-	const results = await Promise.all(promises);
-	spinner.succeed('Checked packages');
-	console.log(results);
+	console.log(notInstalledPackages);
 })();

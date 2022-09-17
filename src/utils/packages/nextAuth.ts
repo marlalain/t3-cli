@@ -2,7 +2,8 @@ import { getPackageVersion, isPackageInstalled, Package } from './index.js';
 import { findPackageJson } from '../npm.js';
 
 export class NextAuth implements Package {
-	name = 'next-auth';
+	name = 'Next Auth';
+	value = 'next-auth';
 	devDependency = false;
 
 	version = async (): Promise<string | undefined> => {

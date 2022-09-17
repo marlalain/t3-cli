@@ -16,8 +16,8 @@ export const getPackageVersion = (
 	pkg: Package,
 ): string | undefined => {
 	return pkg.devDependency
-		? json.devDependencies?.[pkg.name]
-		: json.dependencies?.[pkg.name];
+		? json.devDependencies?.[pkg.value]
+		: json.dependencies?.[pkg.value];
 };
 
 export const isPackageInstalled = (
@@ -26,15 +26,16 @@ export const isPackageInstalled = (
 ): boolean => {
 	if (pkg.devDependency) {
 		if (!json.devDependencies) return false;
-		return !!json.devDependencies[pkg.name];
+		return !!json.devDependencies[pkg.value];
 	}
 
 	if (!json.dependencies) return false;
-	return !!json.dependencies[pkg.name];
+	return !!json.dependencies[pkg.value];
 };
 
 export interface Package {
 	name: string;
+	value: string;
 	version: () => Promise<string | undefined>;
 	isInstalled: () => Promise<boolean>;
 	devDependency: boolean;
