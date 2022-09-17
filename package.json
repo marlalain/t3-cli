@@ -1,5 +1,5 @@
 {
-  "name": "t3-cli",
+  "name": "create-t3-tools",
   "version": "0.1.0",
   "description": "Adds T3 packages mid-development",
   "main": "index.js",
@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/minsk-dev/t3-tools/issues"
   },
-  "homepage": "https://github.com/minsk-dev/t3-tools#readme"
+  "homepage": "https://github.com/minsk-dev/t3-tools#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.37.0",
+    "@typescript-eslint/parser": "^5.37.0",
+    "eslint": "^8.23.1",
+    "prettier": "2.7.1",
+    "typescript": "^4.8.3"
+  }
 }
