@@ -1,5 +1,5 @@
 {
-  "name": "t3-tools",
+  "name": "t3-cli",
   "version": "0.1.0",
   "description": "Adds T3 packages mid-development",
   "main": "index.js",
