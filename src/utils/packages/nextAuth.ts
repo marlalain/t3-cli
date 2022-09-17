@@ -1,5 +1,5 @@
-import { getPackageVersion, isPackageInstalled, Package } from './index';
-import { findPackageJson } from '../npm';
+import { getPackageVersion, isPackageInstalled, Package } from './index.js';
+import { findPackageJson } from '../npm.js';
 
 export class NextAuth implements Package {
 	name = 'next-auth';

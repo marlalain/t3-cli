@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { PackageJson } from 'type-fest';
+import path from 'path';
+import * as fs from 'fs';
 
 let json: PackageJson | undefined;
 
