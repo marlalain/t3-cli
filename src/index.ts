@@ -1,5 +1,7 @@
-import { findRoot } from './utils/npm';
+import { TRPC } from './utils/packages/trpc';
 
 (async () => {
-	console.log('root:', await findRoot(process.cwd()));
+	const trpc = new TRPC();
+
+	console.log(await trpc.isInstalled());
 })();
