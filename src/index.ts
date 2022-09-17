@@ -1,11 +1,13 @@
 import { TRPC } from './utils/packages/trpc';
 import { Tailwind } from './utils/packages/tailwind';
 import { NextAuth } from './utils/packages/nextAuth';
+import { Prisma } from './utils/packages/prisma';
 
 (async () => {
 	const trpc = new TRPC();
 	const tailwind = new Tailwind();
 	const nextAuth = new NextAuth();
+	const prisma = new Prisma();
 
 	console.log([
 		{
@@ -22,6 +24,11 @@ import { NextAuth } from './utils/packages/nextAuth';
 			name: nextAuth.name,
 			version: await nextAuth.version(),
 			isInstalled: await nextAuth.isInstalled(),
+		},
+		{
+			name: prisma.name,
+			version: await prisma.version(),
+			isInstalled: await prisma.isInstalled(),
 		},
 	]);
 })();
