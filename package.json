@@ -1,0 +1,19 @@
+{
+  "name": "t3-tools",
+  "version": "0.1.0",
+  "description": "Adds T3 packages mid-development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minsk-dev/t3-tools.git"
+  },
+  "author": "Alex <alex@alexaa.dev>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/minsk-dev/t3-tools/issues"
+  },
+  "homepage": "https://github.com/minsk-dev/t3-tools#readme"
+}
