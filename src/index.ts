@@ -1,6 +1,7 @@
 import { Package, packages } from './utils/packages/index.js';
 import ora from 'ora';
 import chalk from 'chalk';
+import { TypesafeEnv } from './utils/checks/typesafe-env.js';
 
 const getNotInstalledPackages = async () => {
 	const notInstalledPackages: Package[] = [];
@@ -23,9 +24,6 @@ const getNotInstalledPackages = async () => {
 };
 
 (async () => {
-	const spinner = ora('Checking packages').start();
-	const notInstalledPackages = await getNotInstalledPackages();
-	spinner.succeed('Done');
-
-	console.log(notInstalledPackages);
+	const env = new TypesafeEnv();
+	await env.check();
 })();

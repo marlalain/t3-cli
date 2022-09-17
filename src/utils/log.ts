@@ -11,7 +11,7 @@ export const warn = (...e: string[]) => {
 };
 
 export const error = (...e: string[]) => {
-	console.error(chalk.red(e));
+	console.error('❌\t', chalk.red(e));
 };
 
 export const success = (...e: string[]) => {

@@ -17,7 +17,7 @@ export const findPackageJson = async (
 	return json;
 };
 
-const findNpmRoot = async (cwd: string): Promise<string> => {
+export const findNpmRoot = async (cwd: string): Promise<string> => {
 	if (await isAtRoot(cwd)) return cwd;
 
 	const parent = path.dirname(cwd);
