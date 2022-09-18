@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // noinspection JSUnusedGlobalSymbols
 
 import chalk from 'chalk';
 
-export const log = (...e: string[]) => {
-	console.log(chalk.blue(e));
+export const log = (...e: any[]) => {
+	console.log(chalk.blue(...e));
 };
 
-export const warn = (...e: string[]) => {
-	console.warn(chalk.yellow(e));
+export const warn = (...e: any[]) => {
+	console.warn(chalk.yellow(...e));
 };
 
-export const error = (...e: string[]) => {
-	console.error('❌\t', chalk.red(e));
+export const error = (...e: any[]) => {
+	console.error('❌\t', chalk.red(...e));
 };
 
-export const success = (...e: string[]) => {
-	console.log(chalk.green(e));
+export const success = (...e: any[]) => {
+	console.log(chalk.green(...e));
 };
