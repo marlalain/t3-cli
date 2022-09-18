@@ -1,12 +1,12 @@
-import { Package, packages } from './utils/packages/index.js';
+import { IPackage, packages } from './utils/packages/index.js';
 import ora from 'ora';
 import chalk from 'chalk';
 import { TypesafeEnv } from './utils/checks/typesafe-env.js';
 
 const getNotInstalledPackages = async () => {
-	const notInstalledPackages: Package[] = [];
+	const notInstalledPackages: IPackage[] = [];
 
-	const promises = Object.entries(packages).map(([, pkg]): Package => {
+	const promises = Object.entries(packages).map(([, pkg]): IPackage => {
 		return pkg;
 	});
 
