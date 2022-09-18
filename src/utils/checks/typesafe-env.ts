@@ -89,27 +89,16 @@ export class TypesafeEnv implements Checks {
 	private getSchemaEnvVars = async () => {
 		if (!this.ast) throw new Error('AST is not defined');
 
-		const declarators = this.ast.program.body
-			.filter((node) => node.type === 'ExportNamedDeclaration')
-			.map((node) => (node as ExportNamedDeclaration).declaration)
-			.filter((node) => node?.type === 'VariableDeclaration')
-			.map((node) => (node as VariableDeclaration).declarations)
-			.flat(); // [][] -> []
+		const envVars: string[] = [];
+		traverse.default(this.ast, {
+			ObjectProperty(path) {
+				if (path.node.key.type === 'Identifier') {
+					envVars.push(path.node.key.name);
+				}
+			},
+		});
 
-		const schemas = declarators
-			.map((declarator) => declarator.init)
-			.filter((init) => init?.type === 'CallExpression')
-			.map((init) => (init as CallExpression)?.arguments)
-			.flat()
-			.filter((arg) => arg?.type === 'ObjectExpression')
-			.map((arg) => (arg as ObjectExpression).properties)
-			.flat();
-
-		return schemas
-			.filter((field) => field.type === 'ObjectProperty')
-			.map((schema) => (schema as ObjectProperty).key)
-			.filter((key) => key.type === 'Identifier')
-			.map((key) => (key as Identifier).name);
+		return envVars;
 	};
 
 	private assertZod = async () => {
