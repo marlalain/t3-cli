@@ -1,17 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { PackageJson } from 'type-fest';
-import { TRPC } from './trpc.js';
-import { Tailwind } from './tailwind.js';
-import { NextAuth } from './nextAuth.js';
-import { Prisma } from './prisma.js';
 import { findPackageJson } from '../npm.js';
-
-export const packages = {
-	trpc: new TRPC(),
-	tailwind: new Tailwind(),
-	nextAuth: new NextAuth(),
-	prisma: new Prisma(),
-};
 
 export const getPackageVersion = (
 	json: PackageJson,
