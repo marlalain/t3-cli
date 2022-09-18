@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Checks } from './index.js';
 import { findNpmRoot } from '../npm.js';
 import path from 'path';
@@ -5,22 +6,25 @@ import * as fs from 'fs';
 import parser, { ParseResult } from '@babel/parser';
 import {
 	CallExpression,
-	ExportNamedDeclaration,
 	File,
 	Identifier,
 	ImportDeclaration,
+	MemberExpression,
 	ObjectExpression,
-	ObjectProperty,
-	VariableDeclaration,
+	VariableDeclarator,
 } from '@babel/types';
 import { error, log } from '../log.js';
 import { enviromentVariables } from '../env.js';
 import ora from 'ora';
 import inquirer from 'inquirer';
-import { PossibleType, typeGuesser } from '../type-guesser.js';
+import { PossibleType, typeGuesser, zodAST } from '../type-guesser.js';
+import generate from '@babel/generator';
+import traverse, { NodePath } from '@babel/traverse';
 
 export class TypesafeEnv implements Checks {
 	ast: ParseResult<File> | undefined;
+	code: string | undefined;
+	schemaFilePath: string | undefined;
 
 	check = async () => {
 		this.ast = await this.getAST();
@@ -34,14 +38,10 @@ export class TypesafeEnv implements Checks {
 		for (const env of actualEnvVars) {
 			const inSpinner = ora(`Checking ${env}`).start();
 			if (!schemaEnvVars.includes(env)) {
-				inSpinner.fail(
-					`Environment variable $${env} is not defined in the schema`,
-				);
+				inSpinner.fail(`Environment variable $${env} is not defined in the schema`);
 				missingEnvVars.push(env);
 			} else {
-				inSpinner.succeed(
-					`Environment variable $${env} is defined in the schema`,
-				);
+				inSpinner.succeed(`Environment variable $${env} is defined in the schema`);
 			}
 		}
 
@@ -68,19 +68,19 @@ export class TypesafeEnv implements Checks {
 		const folder = await findNpmRoot(process.cwd());
 		const envFolder = path.join(folder, 'src', 'env');
 
-		if (!fs.existsSync(envFolder))
-			throw new Error(
-				`Could not find env folder at ${envFolder}. Please create it.`,
-			);
+		if (!fs.existsSync(envFolder)) throw new Error(`Could not find env folder at ${envFolder}. Please create it.`);
 
-		const files = fs
+		const filePaths = fs
 			.readdirSync(envFolder)
 			.filter((file) => file.endsWith('.mjs'))
-			.map((file) => path.join(envFolder, file))
-			.map((file) => fs.readFileSync(file, 'utf8'));
+			.map((file) => path.join(envFolder, file));
+
+		const files = filePaths.map((file) => fs.readFileSync(file, 'utf8'));
 
 		const schema = files[1]; // TODO: Find the schema file
 
+		this.schemaFilePath = filePaths[1];
+		this.code = schema;
 		return parser.parse(schema, {
 			sourceType: 'module',
 		});
@@ -118,9 +118,7 @@ export class TypesafeEnv implements Checks {
 			.some((node) => (node as ImportDeclaration).source.value === 'zod');
 
 		if (!usingZod) {
-			error(
-				'This CLI can only work with "zod" and an scaffolded project from "create-t3-app"',
-			);
+			error('This CLI can only work with "zod" and an scaffolded project from "create-t3-app"');
 			process.exit(1);
 		}
 	};
@@ -131,12 +129,28 @@ export class TypesafeEnv implements Checks {
 	 * We also try to infer the type of the variable from the name.
 	 */
 	private handleErrors = async (envVars: string[]) => {
-		const missingEnvVars = [];
 		for (const env of envVars) {
 			if (!(await this.confirm(env))) continue;
 
 			const type = await this.promptType(env);
+			traverse.default(this.ast, {
+				ObjectExpression(path: NodePath<ObjectExpression>) {
+					const isZod =
+						(((path.parent as CallExpression)?.callee as MemberExpression)?.object as Identifier)?.name === 'z';
+
+					const isServerSchema =
+						(((path.parentPath as NodePath<CallExpression>)?.parent as VariableDeclarator)?.id as Identifier)?.name ===
+						'serverSchema';
+
+					if (isZod && isServerSchema) {
+						path.node.properties.push(zodAST(env, type));
+					}
+				},
+			});
 		}
+
+		const output = generate.default(this.ast!, {}, this.code);
+		fs.writeFileSync(this.schemaFilePath!, output.code);
 	};
 
 	private confirm = async (env: string) => {
