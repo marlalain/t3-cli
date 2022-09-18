@@ -10,7 +10,7 @@ export const typeGuesser = (env: string): PossibleType[] => {
 		env.includes(text),
 	);
 
-	return possibleTypes.sort((a) => {
+	return possibleTypes.sort((a: PossibleType) => {
 		if (a === 'string' && isString) return -1;
 		if (a === 'number' && isNumber) return -1;
 		if (a === 'boolean' && isBoolean) return -1;

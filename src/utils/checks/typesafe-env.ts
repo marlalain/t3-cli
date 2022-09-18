@@ -13,47 +13,20 @@ import {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
-import { error } from '../log.js';
+import { error, log } from '../log.js';
 import { enviromentVariables } from '../env.js';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { PossibleType, typeGuesser } from '../type-guesser.js';
 
-const getAST = async () => {
-	// We are expecting for the project structure to be like this:
-	// src
-	// └── env
-	//      ├─── *.mjs
-	//      ├── schema.mjs
-	//      └── *.mjs
-
-	const folder = await findNpmRoot(process.cwd());
-	const envFolder = path.join(folder, 'src', 'env');
-
-	if (!fs.existsSync(envFolder))
-		throw new Error(
-			`Could not find env folder at ${envFolder}. Please create it.`,
-		);
-
-	const files = fs
-		.readdirSync(envFolder)
-		.filter((file) => file.endsWith('.mjs'))
-		.map((file) => path.join(envFolder, file))
-		.map((file) => fs.readFileSync(file, 'utf8'));
-
-	const schema = files[1]; // TODO: Find the schema file
-
-	return parser.parse(schema, {
-		sourceType: 'module',
-	});
-};
-
 export class TypesafeEnv implements Checks {
-	check = async () => {
-		const ast = await getAST();
-		await this.assertZod(ast);
+	ast: ParseResult<File> | undefined;
 
-		const schemaEnvVars = await this.getSchemaEnvVars(ast);
+	check = async () => {
+		this.ast = await this.getAST();
+		await this.assertZod();
+
+		const schemaEnvVars = await this.getSchemaEnvVars();
 		const actualEnvVars = await enviromentVariables();
 		const missingEnvVars: string[] = [];
 		const spinner = ora('Checking env variables').start();
@@ -61,25 +34,62 @@ export class TypesafeEnv implements Checks {
 		for (const env of actualEnvVars) {
 			const inSpinner = ora(`Checking ${env}`).start();
 			if (!schemaEnvVars.includes(env)) {
-				inSpinner.fail(`Env variable ${env} is not defined in the schema`);
+				inSpinner.fail(
+					`Environment variable $${env} is not defined in the schema`,
+				);
 				missingEnvVars.push(env);
 			} else {
-				inSpinner.succeed(`Env variable ${env} is defined in the schema`);
+				inSpinner.succeed(
+					`Environment variable $${env} is defined in the schema`,
+				);
 			}
 		}
 
-		if (missingEnvVars.length > 0) {
-			spinner.fail('Some environment variables are missing');
-			await this.handleErrors(missingEnvVars);
+		if (missingEnvVars.length <= 0) {
+			spinner.succeed('All environment variables are present in your schema');
 
 			return;
 		}
 
-		spinner.succeed('All env variables are present in your schema');
+		spinner.fail('Some environment variables are missing');
+		await this.handleErrors(missingEnvVars);
+
+		return;
 	};
 
-	private getSchemaEnvVars = async (ast: ParseResult<File>) => {
-		const declarators = ast.program.body
+	private getAST = async () => {
+		// We are expecting for the project structure to be like this:
+		// src
+		// └── env
+		//      ├── *.mjs
+		//      ├── schema.mjs
+		//      └── *.mjs
+
+		const folder = await findNpmRoot(process.cwd());
+		const envFolder = path.join(folder, 'src', 'env');
+
+		if (!fs.existsSync(envFolder))
+			throw new Error(
+				`Could not find env folder at ${envFolder}. Please create it.`,
+			);
+
+		const files = fs
+			.readdirSync(envFolder)
+			.filter((file) => file.endsWith('.mjs'))
+			.map((file) => path.join(envFolder, file))
+			.map((file) => fs.readFileSync(file, 'utf8'));
+
+		const schema = files[1]; // TODO: Find the schema file
+
+		return parser.parse(schema, {
+			sourceType: 'module',
+		});
+	};
+
+	private getSchemaEnvVars = async () => {
+		if (!this.ast) throw new Error('AST is not defined');
+
+		const declarators = this.ast.program.body
 			.filter((node) => node.type === 'ExportNamedDeclaration')
 			.map((node) => (node as ExportNamedDeclaration).declaration)
 			.filter((node) => node?.type === 'VariableDeclaration')
@@ -102,8 +112,8 @@ export class TypesafeEnv implements Checks {
 			.map((key) => (key as Identifier).name);
 	};
 
-	private assertZod = async (ast: ParseResult<File>) => {
-		const usingZod = ast.program.body
+	private assertZod = async () => {
+		const usingZod = this.ast?.program.body
 			.filter((node) => node.type === 'ImportDeclaration')
 			.some((node) => (node as ImportDeclaration).source.value === 'zod');
 
@@ -121,18 +131,19 @@ export class TypesafeEnv implements Checks {
 	 * We also try to infer the type of the variable from the name.
 	 */
 	private handleErrors = async (envVars: string[]) => {
+		const missingEnvVars = [];
 		for (const env of envVars) {
-			if (!(await this.confirm())) continue;
+			if (!(await this.confirm(env))) continue;
 
 			const type = await this.promptType(env);
 		}
 	};
 
-	private confirm = async () => {
+	private confirm = async (env: string) => {
 		const { confirm } = await inquirer.prompt<{ confirm: boolean }>({
 			type: 'confirm',
 			name: 'confirm',
-			message: 'Do you want to add the missing env variables to your schema?',
+			message: `Do you want to add $${env} to the schema?`,
 			default: true,
 		});
 
@@ -143,9 +154,12 @@ export class TypesafeEnv implements Checks {
 		const { type } = await inquirer.prompt<{ type: PossibleType }>({
 			type: 'list',
 			name: 'type',
-			message: `What type is ${env}?`,
+			message: `What type is $${env}? (we guessed the order)`,
 			choices: typeGuesser(env),
+			default: 0,
 		});
+
+		if (type === 'other') log('You are going to have to add it manually!');
 
 		return type;
 	};
