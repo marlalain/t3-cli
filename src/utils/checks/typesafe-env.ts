@@ -57,9 +57,7 @@ export class TypesafeEnv implements Checks {
 			.filter((file) => file.endsWith('.mjs'))
 			.map((file) => path.join(envFolder, file));
 
-		const files = filePaths.map((file) => fs.readFileSync(file, 'utf8'));
-
-		const schema = files[1]; // TODO: Find the schema file
+		const schema = fs.readFileSync(filePaths[1], 'utf8');
 
 		this.schemaFilePath = filePaths[1];
 		this.code = schema;
