@@ -1,11 +1,14 @@
 {
   "name": "create-t3-tools",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adds T3 packages mid-development",
   "type": "module",
-  "exports": "./dist/index.ts",
+  "exports": "./dist/index.js",
   "engines": {
     "node": ">=14.16"
+  },
+  "bin": {
+    "create-t3-tools": "./dist/index.js"
   },
   "scripts": {
     "start": "node dist/index.js",
