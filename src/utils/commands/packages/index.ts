@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { PackageJson } from 'type-fest';
-import { findPackageJson } from '../npm.js';
+import { findPackageJson } from '../../npm.js';
 
-export const getPackageVersion = (
-	json: PackageJson,
-	pkg: IPackage,
-): string | undefined => {
-	return pkg.devDependency
-		? json.devDependencies?.[pkg.value!]
-		: json.dependencies?.[pkg.value!];
+export const getPackageVersion = (json: PackageJson, pkg: IPackage): string | undefined => {
+	return pkg.devDependency ? json.devDependencies?.[pkg.value!] : json.dependencies?.[pkg.value!];
 };
 
-export const isPackageInstalled = (
-	json: PackageJson,
-	pkg: IPackage,
-): boolean => {
+export const isPackageInstalled = (json: PackageJson, pkg: IPackage): boolean => {
 	if (pkg.devDependency) {
 		if (!json.devDependencies) return false;
 		return !!json.devDependencies[pkg.value!];

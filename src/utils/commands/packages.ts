@@ -1,9 +1,9 @@
-import { TRPC } from '../packages/trpc.js';
-import { Tailwind } from '../packages/tailwind.js';
-import { NextAuth } from '../packages/nextAuth.js';
-import { Prisma } from '../packages/prisma.js';
+import { TRPC } from './packages/trpc.js';
+import { Tailwind } from './packages/tailwind.js';
+import { NextAuth } from './packages/nextAuth.js';
+import { Prisma } from './packages/prisma.js';
 import { Command } from 'commander';
-import { IPackage } from '../packages/index.js';
+import { IPackage } from './packages/index.js';
 import ora from 'ora';
 import chalk from 'chalk';
 

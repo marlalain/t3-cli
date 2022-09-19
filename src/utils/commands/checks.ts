@@ -1,4 +1,4 @@
-import { TypesafeEnv } from '../checks/typesafe-env.js';
+import { TypesafeEnv } from './checks/typesafe-env.js';
 import { Command } from 'commander';
 
 export const checks = {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Checks } from './index.js';
-import { findNpmRoot } from '../npm.js';
+import { findNpmRoot } from '../../npm.js';
 import path from 'path';
 import * as fs from 'fs';
 import parser, { ParseResult } from '@babel/parser';
@@ -14,11 +14,11 @@ import {
 	ObjectProperty,
 	VariableDeclarator,
 } from '@babel/types';
-import { error, log } from '../log.js';
-import { enviromentVariables } from '../env.js';
+import { error, log } from '../../log.js';
+import { enviromentVariables } from '../../env.js';
 import ora from 'ora';
 import inquirer from 'inquirer';
-import { PossibleType, typeGuesser, zodAST } from '../type-guesser.js';
+import { PossibleType, typeGuesser, zodAST } from '../../type-guesser.js';
 import generate from '@babel/generator';
 import traverse, { NodePath } from '@babel/traverse';
 
