@@ -7,7 +7,7 @@ import { checks } from './utils/checks/checks.js';
 
 const program = new Command();
 
-program.name('t3-cli').description('CLI for your create-t3-app project').version('1.0.4').usage('[commands]');
+program.name('t3-cli').description('CLI for your create-t3-app project').version('1.1.4').usage('[commands]');
 
 program
 	.command('packages')
