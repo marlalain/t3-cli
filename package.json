@@ -1,6 +1,6 @@
 {
   "name": "t3-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI for your create-t3-app project",
   "type": "module",
   "exports": "./dist/index.js",
@@ -8,7 +8,7 @@
     "node": ">=14.16"
   },
   "bin": {
-    "create-t3-tools": "./dist/index.js"
+    "t3-cli": "./dist/index.js"
   },
   "scripts": {
     "start": "node dist/index.js",
