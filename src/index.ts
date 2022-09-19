@@ -1,9 +1,9 @@
 import { IPackage } from './utils/packages/index.js';
 import ora from 'ora';
 import chalk from 'chalk';
-import { packages } from './utils/packages/packages.js';
 import { Command } from 'commander';
-import { checks } from './utils/checks/checks.js';
+import { packages } from './utils/commands/packages.js';
+import { checks } from './utils/commands/checks.js';
 
 const program = new Command();
 
