@@ -1,7 +1,7 @@
 {
   "name": "t3-cli",
-  "version": "1.0.2",
-  "description": "Adds T3 packages mid-development",
+  "version": "1.0.3",
+  "description": "CLI for your create-t3-app project",
   "type": "module",
   "exports": "./dist/index.js",
   "engines": {
