@@ -136,13 +136,10 @@ export class TypesafeEnv implements Checks {
 
 		if (missingEnvVars.size > 0) {
 			spinner.fail('Some environment variables are missing in your code!');
-			for (const env of missingEnvVars) {
-				error(`Missing environment variable $${env}`);
-				await this.promptType(env!);
-			}
+			await this.handleErrors(Array.from(missingEnvVars));
 		}
 
-		spinner.succeed('nice');
+		spinner.succeed('Finished going through the code');
 	};
 
 	private recursivelyFindSourceFiles = async (dir: string): Promise<string[]> => {
