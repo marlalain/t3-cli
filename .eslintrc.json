@@ -12,9 +12,10 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "indent": ["error", "tab"],
+    "indent": ["error", "tab", { "MemberExpression": 1 }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
-    "semi": ["error", "always"]
+    "semi": ["error", "always"],
+    "dot-notation": "error"
   }
 }
