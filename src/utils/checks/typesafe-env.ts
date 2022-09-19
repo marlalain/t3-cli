@@ -32,27 +32,6 @@ export class TypesafeEnv implements Checks {
 
 		const schemaEnvVars = await this.getSchemaEnvVars();
 		const actualEnvVars = await enviromentVariables();
-		const missingEnvVars: string[] = [];
-		const spinner = ora('Checking env variables').start();
-
-		for (const env of actualEnvVars) {
-			const inSpinner = ora(`Checking ${env}`).start();
-			if (!schemaEnvVars.includes(env)) {
-				inSpinner.fail(`Environment variable $${env} is not defined in the schema`);
-				missingEnvVars.push(env);
-			} else {
-				inSpinner.succeed(`Environment variable $${env} is defined in the schema`);
-			}
-		}
-
-		if (missingEnvVars.length <= 0) {
-			spinner.succeed('All environment variables are present in your schema');
-
-			return;
-		}
-
-		spinner.fail('Some environment variables are missing');
-		await this.handleErrors(missingEnvVars);
 
 		return;
 	};
@@ -110,6 +89,30 @@ export class TypesafeEnv implements Checks {
 			error('This CLI can only work with "zod" and an scaffolded project from "create-t3-app"');
 			process.exit(1);
 		}
+	};
+
+	private checkDotEnv = async (actualEnvVars: string[], schemaEnvVars: string[]) => {
+		const missingEnvVars: string[] = [];
+		const spinner = ora('Checking env variables').start();
+
+		for (const env of actualEnvVars) {
+			const inSpinner = ora(`Checking ${env}`).start();
+			if (!schemaEnvVars.includes(env)) {
+				inSpinner.fail(`Environment variable $${env} is not defined in the schema`);
+				missingEnvVars.push(env);
+			} else {
+				inSpinner.succeed(`Environment variable $${env} is defined in the schema`);
+			}
+		}
+
+		if (missingEnvVars.length <= 0) {
+			spinner.succeed('All environment variables are present in your schema');
+
+			return;
+		}
+
+		spinner.fail('Some environment variables are missing');
+		await this.handleErrors(missingEnvVars);
 	};
 
 	/*
