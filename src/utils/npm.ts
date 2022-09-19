@@ -4,9 +4,7 @@ import * as fs from 'fs';
 
 let json: PackageJson | undefined;
 
-export const findPackageJson = async (
-	cwd: string = process.cwd(),
-): Promise<PackageJson> => {
+export const findPackageJson = async (cwd: string = process.cwd()): Promise<PackageJson> => {
 	if (json) return json;
 
 	const root = await findNpmRoot(cwd);
