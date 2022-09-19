@@ -11,6 +11,7 @@ import {
 	ImportDeclaration,
 	MemberExpression,
 	ObjectExpression,
+	ObjectProperty,
 	VariableDeclarator,
 } from '@babel/types';
 import { error, log } from '../log.js';
@@ -32,7 +33,7 @@ export class TypesafeEnv implements Checks {
 
 		const schemaEnvVars = await this.getSchemaEnvVars();
 		const actualEnvVars = await enviromentVariables();
-		// await this.assertDotEnv(actualEnvVars, schemaEnvVars);
+		await this.assertDotEnv(actualEnvVars, schemaEnvVars);
 		await this.checkFiles(schemaEnvVars);
 
 		return;
@@ -72,7 +73,7 @@ export class TypesafeEnv implements Checks {
 
 		const envVars: string[] = [];
 		traverse.default(this.ast, {
-			ObjectProperty(path) {
+			ObjectProperty(path: NodePath<ObjectProperty>) {
 				if (path.node.key.type === 'Identifier') {
 					envVars.push(path.node.key.name);
 				}
