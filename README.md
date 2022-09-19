@@ -1,4 +1,4 @@
-# `t3-cli`
+# the `t3` cli
 
 CLI for your create-t3-app projects.
 
@@ -6,16 +6,16 @@ CLI for your create-t3-app projects.
 
 ```shell
 pnpm install -g t3-cli
-t3-cli --help
+t3 --help
 ```
 
 ## Features
 
-### `t3-cli check`
+### `t3 check`
 
 Checks your code for common errors like environment variables that weren't declared on your schema files.
 
-### `t3-cli packages`
+### `t3 packages`
 
 Currently, it shows the installed packages that you have. The option to add a package will be added soon.
 
