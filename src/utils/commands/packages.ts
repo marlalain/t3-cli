@@ -14,7 +14,7 @@ export const packages = {
 	prisma: new Prisma(),
 };
 
-export const packagesCommand = () => {
+export const packagesCommand = (): Command => {
 	return new Command('packages').description('Check if all packages are installed').action(async () => {
 		const promises = Object.entries(packages).map(([, pkg]): IPackage => {
 			return pkg;
