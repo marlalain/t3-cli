@@ -12,7 +12,7 @@ export const warn = (...e: any[]) => {
 };
 
 export const error = (...e: any[]) => {
-	console.error('❌\t', chalk.red(...e));
+	console.error(chalk.red(...e));
 };
 
 export const success = (...e: any[]) => {

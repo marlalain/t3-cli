@@ -32,6 +32,8 @@ export class TypesafeEnv implements Checks {
 
 		const schemaEnvVars = await this.getSchemaEnvVars();
 		const actualEnvVars = await enviromentVariables();
+		// await this.assertDotEnv(actualEnvVars, schemaEnvVars);
+		await this.checkFiles(schemaEnvVars);
 
 		return;
 	};
@@ -91,22 +93,22 @@ export class TypesafeEnv implements Checks {
 		}
 	};
 
-	private checkDotEnv = async (actualEnvVars: string[], schemaEnvVars: string[]) => {
+	private assertDotEnv = async (actualEnvVars: string[], schemaEnvVars: string[]) => {
 		const missingEnvVars: string[] = [];
 		const spinner = ora('Checking env variables').start();
 
 		for (const env of actualEnvVars) {
 			const inSpinner = ora(`Checking ${env}`).start();
-			if (!schemaEnvVars.includes(env)) {
+			if (schemaEnvVars.includes(env)) {
+				inSpinner.succeed(`Environment variable $${env} is defined in the schema`);
+			} else {
 				inSpinner.fail(`Environment variable $${env} is not defined in the schema`);
 				missingEnvVars.push(env);
-			} else {
-				inSpinner.succeed(`Environment variable $${env} is defined in the schema`);
 			}
 		}
 
 		if (missingEnvVars.length <= 0) {
-			spinner.succeed('All environment variables are present in your schema');
+			spinner.succeed('All environment variables are present in your schema\n');
 
 			return;
 		}
@@ -115,14 +117,77 @@ export class TypesafeEnv implements Checks {
 		await this.handleErrors(missingEnvVars);
 	};
 
+	private checkFiles = async (schemaEnvVars: string[]) => {
+		const spinner = ora('Checking files').start();
+		const folder = await findNpmRoot(process.cwd());
+		const srcFolder = path.join(folder, 'src');
+		const filePaths = await this.recursivelyFindSourceFiles(srcFolder);
+
+		const files = filePaths.map((file) => fs.readFileSync(file, 'utf8'));
+		const results = files.map((code) =>
+			parser.parse(code, {
+				sourceType: 'module',
+				plugins: ['typescript', 'jsx'],
+			}),
+		);
+		const asserts = results.map((ast) => this.assertFile(ast, schemaEnvVars));
+		const missingEnvVars = new Set(await Promise.all(asserts));
+		missingEnvVars.delete(undefined);
+
+		if (missingEnvVars.size > 0) {
+			spinner.fail('Some environment variables are missing in your code!');
+			for (const env of missingEnvVars) {
+				error(`Missing environment variable $${env}`);
+				await this.promptType(env!);
+			}
+		}
+
+		spinner.succeed('nice');
+	};
+
+	private recursivelyFindSourceFiles = async (dir: string): Promise<string[]> => {
+		const exts = ['.js', '.jsx', '.ts', '.tsx'];
+		const files: string[] = [];
+
+		for (const file of fs.readdirSync(dir)) {
+			const filePath = path.join(dir, file);
+			if (fs.statSync(filePath).isDirectory())
+				files.push(...(await this.recursivelyFindSourceFiles(path.join(dir, file))));
+			else if (exts.some((ext) => filePath.includes(ext))) files.push(filePath);
+		}
+
+		return files;
+	};
+
+	private assertFile = async (ast: ParseResult<File>, schemaEnvVars: string[]): Promise<string | undefined> => {
+		let result: string | undefined;
+		// TODO: Traversing the AST twice (this.assertDotEnv)
+		traverse.default(await ast, {
+			MemberExpression: (path: NodePath<MemberExpression>) => {
+				const process = (path.node?.object as MemberExpression)?.object as Identifier;
+				if (process?.name !== 'process') return;
+
+				const env = (path.node?.object as MemberExpression)?.property as Identifier;
+				if (env?.name !== 'env') return;
+
+				const envName = path.node?.property as Identifier;
+				if (!envName || !envName.name || schemaEnvVars.some((env) => env === envName.name)) return;
+
+				result = envName.name;
+			},
+		});
+
+		return result;
+	};
+
 	/*
 	 * We will ask the user if they want to add the missing env variables
 	 * to the schema. If they do, we will add them and write the file.
 	 * We also try to infer the type of the variable from the name.
 	 */
-	private handleErrors = async (envVars: string[]) => {
+	private handleErrors = async (envVars: (string | undefined)[]) => {
 		for (const env of envVars) {
-			if (!(await this.confirm(env))) continue;
+			if (!env || !(await this.confirm(env))) continue;
 
 			const type = await this.promptType(env);
 			traverse.default(this.ast, {
