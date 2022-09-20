@@ -5,8 +5,23 @@ CLI for your create-t3-app projects.
 ## Installing and Usage
 
 ```shell
-pnpm install -g t3-cli
+pnpm install -g t3-cli@latest
 t3 --help
+```
+
+```
+Usage: t3-tools [commands]
+
+A CLI for the T3 Tools
+
+Options:
+  -V, --version   output the version number
+  -h, --help      display help for command
+
+Commands:
+  packages        Check if all packages are installed
+  check           Runs checks on your codebase
+  help [command]  display help for command
 ```
 
 ## Features
