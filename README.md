@@ -34,6 +34,11 @@ Checks your code for common errors like environment variables that weren't decla
 
 Currently, it shows the installed packages that you have. The option to add a package will be added soon.
 
+### `t3 migrate [package]`
+
+Runs the migrations for the specified package. If no package is specified, it will default to the latest updated 
+package.
+
 ## Limitations
 
 Currently, the CLI relies on your project being created with [t3-oss/create-t3-app](https://github.com/t3-oss/create-t3-app). Support for largely different file structures will be added at a later time.
