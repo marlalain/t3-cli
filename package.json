@@ -38,7 +38,7 @@
     "ora": "6.1.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.1",
+    "@babel/core": "latest",
     "@babel/generator": "7.19.0",
     "@babel/parser": "7.19.1",
     "@babel/types": "7.19.0",
