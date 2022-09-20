@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Checks } from './index.js';
-import { findNpmRoot } from '../../npm.js';
 import path from 'path';
 import * as fs from 'fs';
 import parser, { ParseResult } from '@babel/parser';
@@ -21,6 +20,7 @@ import inquirer from 'inquirer';
 import { PossibleType, typeGuesser, zodAST } from '../../type-guesser.js';
 import generate from '@babel/generator';
 import traverse, { NodePath } from '@babel/traverse';
+import { project } from '../../npm.js';
 
 export class TypesafeEnv implements Checks {
 	ast: ParseResult<File> | undefined;
@@ -47,7 +47,7 @@ export class TypesafeEnv implements Checks {
 		//      ├── schema.mjs
 		//      └── *.mjs
 
-		const folder = await findNpmRoot(process.cwd());
+		const folder = (await project).root;
 		const envFolder = path.join(folder, 'src', 'env');
 
 		if (!fs.existsSync(envFolder)) throw new Error(`Could not find env folder at ${envFolder}. Please create it.`);
@@ -118,7 +118,7 @@ export class TypesafeEnv implements Checks {
 
 	private checkFiles = async (schemaEnvVars: string[]) => {
 		const spinner = ora('Checking files').start();
-		const folder = await findNpmRoot(process.cwd());
+		const folder = (await project).root;
 		const srcFolder = path.join(folder, 'src');
 		const filePaths = await this.recursivelyFindSourceFiles(srcFolder);
 

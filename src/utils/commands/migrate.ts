@@ -2,8 +2,8 @@ import { Command } from 'commander';
 import { error, success } from '../log.js';
 import { repo } from '../../const.js';
 import { MigrateTRPC } from './migrate/trpc.js';
-import { findNpmRoot } from '../npm.js';
 import * as process from 'process';
+import { project } from '../npm.js';
 
 export interface Migrate {
 	packageName: string;
@@ -29,7 +29,7 @@ export const migrateCommand = (): Command => {
 			);
 			if (!confirm) process.exit(0);*/
 
-			await trpc.migrate({ cwd: await findNpmRoot(process.cwd()) });
+			await trpc.migrate({ cwd: (await project).root });
 			success(`Successfully migrated your project to ${trpc.packageName} ${trpc.toVersion}`);
 		});
 };

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { PackageJson } from 'type-fest';
-import { findPackageJson } from '../../npm.js';
+import { project } from '../../npm.js';
 
 export const getPackageVersion = (json: PackageJson, pkg: IPackage): string | undefined => {
 	return pkg.devDependency ? json.devDependencies?.[pkg.value!] : json.dependencies?.[pkg.value!];
@@ -26,10 +26,10 @@ export interface IPackage {
 
 export class Package implements IPackage {
 	version = async (): Promise<string | undefined> => {
-		return getPackageVersion(await findPackageJson(), this);
+		return getPackageVersion((await project).pkg, this);
 	};
 
 	isInstalled = async (): Promise<boolean> => {
-		return isPackageInstalled(await findPackageJson(), this);
+		return isPackageInstalled((await project).pkg, this);
 	};
 }
