@@ -6,6 +6,8 @@ import { Command } from 'commander';
 import { IPackage } from './packages/index.js';
 import ora from 'ora';
 import chalk from 'chalk';
+import { project } from '../npm.js';
+import { warn } from '../log.js';
 
 export const packages = {
 	trpc: new TRPC(),
@@ -16,6 +18,11 @@ export const packages = {
 
 export const packagesCommand = (): Command => {
 	return new Command('packages').description('Check if all packages are installed').action(async () => {
+		if ((await project).hasWorkspaces) {
+			warn('Workspaces are not supported yet');
+			return;
+		}
+
 		const promises = Object.entries(packages).map(([, pkg]): IPackage => {
 			return pkg;
 		});

@@ -8,6 +8,7 @@ import { CallExpression, Identifier, MemberExpression, VariableDeclarator } from
 import * as path from 'path';
 import { NodePath, ParseResult } from '@babel/core';
 import ora from 'ora';
+import { log } from '../../log.js';
 
 export class MigrateTRPC implements Migrate {
 	packageName = 'trpc';
@@ -17,9 +18,10 @@ export class MigrateTRPC implements Migrate {
 
 	// TODO: Create an interactive mode for users to find files (in case it errors out).
 	async migrate(options: { cwd: string }): Promise<void> {
-		this.rootDir = options.cwd;
+		// this.rootDir = options.cwd;
+		// await this.findTVariable();
 
-		await this.findTVariable();
+		log('WIP!');
 		return Promise.resolve();
 	}
 
